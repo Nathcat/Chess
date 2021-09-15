@@ -2,10 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Knight : ChessPiece
+
+/*
+ * Knight.cs
+ *
+ * ChessPiece script for the Knight piece.
+ *
+ * Author: Nathan "Nathcat" Baines
+ */
+
+
+public class Knight : ChessPiece  // Derive from ChessPiece parent class
 {
-    private GameManager gameManager;
-    private Vector3[] legalMoves = {
+    private GameManager gameManager;  // Holds the GameManager script
+    private Vector3[] legalMoves = {  // Array of legal moves for this piece
         new Vector3(1.0f, 0.0f, 2.0f),
         new Vector3(2.0f, 0.0f, 1.0f),
         new Vector3(-1.0f, 0.0f, 2.0f),
@@ -16,15 +26,17 @@ public class Knight : ChessPiece
         new Vector3(-2.0f, 0.0f, -1.0f)
     };
 
-    public int side;
+    public int side;  // Integer determining which side this piece is on, 0 for white, 1 for black
     private int oppositeSide;
     private string[] sideNames = {"White", "Black"};
 
     public bool moving = false;
 
-    void Start() {
+    void Start() {  // Start is called before the first frame for which this object exists
+        // Get the GameManager script from the host object ("GameManager")
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
+        // Determine the opposite side
         if (side == 0) {
 
             oppositeSide = 1;
@@ -36,28 +48,40 @@ public class Knight : ChessPiece
         }
     }
 
-    void OnMouseDown() {
+    void OnMouseDown() {  // Called when this object is clicked
 
+        // If it's this piece's side's turn, and this piece is not moving...
         if (gameManager.turn == side && !moving) {
 
+            // Destroy all existing legal move tokens
             foreach (GameObject moveToken in GameObject.FindGameObjectsWithTag("LegalMoveToken")) {
                 Destroy(moveToken);
             }
 
+            // For each legal move Vector in the legal moves array
             foreach (Vector3 legalMove in legalMoves) {
 
+                // Array of colliders found in the space this legal move will move this piece to
                 Collider[] piecesInSquare = Physics.OverlapSphere(transform.position + legalMove, 0.5f);
 
+                // If there is an object in the space...
                 if (piecesInSquare.Length == 1) {
+                    // If the object in the space is on the opposite side
                     if (piecesInSquare[0].transform.gameObject.CompareTag(sideNames[oppositeSide])) {
+                        // Create an attack token
                         GameObject attackToken = Instantiate(gameManager.attackToken, transform.position + legalMove, new Quaternion(0.0f, 0.0f, 0.0f, 0.0f));
+                        // Set the parent piece of the attack token to this piece
                         attackToken.GetComponent<AttackToken>().parentPiece = this;
+                        // Set the attacked piece to the piece in the square
                         attackToken.GetComponent<AttackToken>().attackedPiece = piecesInSquare[0].transform.gameObject;
                     }
                 }
 
+                // If there are no objects in the space
                 if (piecesInSquare.Length == 0) {
+                    // Create a new move token
                     GameObject moveToken = Instantiate(gameManager.legalMoveToken, transform.position + legalMove, new Quaternion(0.0f, 0.0f, 0.0f, 0.0f));
+                    // Set the parent piece of the move token to this piece
                     moveToken.GetComponent<MoveToken>().parentPiece = this;
                 }
 
@@ -66,14 +90,16 @@ public class Knight : ChessPiece
 
     }
 
-    override public void move(GameObject legalMoveToken) {
+    override public void move(GameObject legalMoveToken) {  // Override move method
 
+        // Start the moveOverTime coroutine to move the piece over time to its new location
         StartCoroutine(moveOverTime(legalMoveToken.transform.position));
 
+        // Destroy all existing move tokens
         foreach (GameObject moveToken in GameObject.FindGameObjectsWithTag("LegalMoveToken")) {
             Destroy(moveToken);
         }
 
-        gameManager.togglePlayer();
+        gameManager.togglePlayer();  // Move to the next player's turn
     }
 }
