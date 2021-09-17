@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System;
 
 
-/**
+/*
  * GameManager.cs
  *
  * Game manager script, will be attached to a GameManager object.

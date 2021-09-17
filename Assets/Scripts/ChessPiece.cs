@@ -18,6 +18,9 @@ using UnityEngine;
 
 abstract public class ChessPiece : MonoBehaviour
 {
+    public bool moving;
+    public int side;
+    public GameManager gameManager;
 
     abstract public void move(GameObject legalMoveToken);  // Abstract move method
 
@@ -35,5 +38,4 @@ abstract public class ChessPiece : MonoBehaviour
         moving = false;  // The piece has finished moving
 
     }
-
 }

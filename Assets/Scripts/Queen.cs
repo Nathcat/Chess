@@ -14,7 +14,6 @@ using UnityEngine;
 
 public class Queen : ChessPiece  // Derive from ChessPiece parent class
 {
-    private GameManager gameManager;  // GameManager script
     public Vector3[,] legalMoves = {  // Nested array of legal moves. See Bishop.cs for explanation behind the 2d array
         {
             new Vector3(1.0f, 0.0f, 1.0f),
@@ -97,11 +96,9 @@ public class Queen : ChessPiece  // Derive from ChessPiece parent class
         }
     };
 
-    public int side;  // Integer value representing the side this piece is on, 0 for white, 1 for black
     private int oppositeSide;
     private string[] sideNames = {"White", "Black"};
 
-    public bool moving = false;
 
     void Start() {  // Start is called before the first frame in which this object is present
         // Get the GameManager script from the object that hosts it

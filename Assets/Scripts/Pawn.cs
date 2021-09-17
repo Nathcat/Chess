@@ -16,15 +16,12 @@ using UnityEngine;
 
 public class Pawn : ChessPiece  // Derive from ChessPiece parent class
 {
-    private GameManager gameManager;  // Holds the GameManager script
     private Vector3[] legalMoves;  // Array to hold the legal moves for this piece
     public Vector3[] attackSquares;  // Array to hold the spaces this piece can attack
 
-    public int side;
     private int oppositeSide;
     private string[] sideNames = {"White", "Black"};
 
-    public bool moving = false;
 
     void Start() {  // Start is called before the first frame in which this object is present
         // Get the GameManager script from the object that hosts it ("GameManager")

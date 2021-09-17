@@ -14,7 +14,8 @@ using UnityEngine;
 
 public class Bishop : ChessPiece  // Derive from the ChessPiece parent class
 {
-    private GameManager gameManager;  // Holds the game manager script
+
+
     // legalMoves stores a 2-dimensional array of Vector3 objects which represent
     // all the legal moves for this piece.
     // Each nested array contains all the legal moves in a certain direction,
@@ -64,12 +65,9 @@ public class Bishop : ChessPiece  // Derive from the ChessPiece parent class
         }
     };
 
-    public int side;  // Integer representing which side this piece is on, 0 for white, 1 for black
     private int oppositeSide;  // Integer representing the side that this piece is not on.
     // The names of each side in an array corresponding to the integer representations of each side
     private string[] sideNames = {"White", "Black"};
-
-    public bool moving = false;  // Bool that shows if this piece is moving
 
     void Start() {  // Start is called before the first frame in which this object exists
         // Get the GameManager script from the object that hosts it ("GameManager")

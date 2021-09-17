@@ -14,7 +14,6 @@ using UnityEngine;
 
 public class King : ChessPiece  // Derive from ChessPiece parent class
 {
-    private GameManager gameManager;  // Holds the GameManager script
     private Vector3[] legalMoves = {  // List of legal moves for this piece
         new Vector3(-1.0f, 0.0f, -1.0f),
         new Vector3(0.0f, 0.0f, -1.0f),
@@ -26,12 +25,10 @@ public class King : ChessPiece  // Derive from ChessPiece parent class
         new Vector3(-1.0f, 0.0f, 0.0f)
     };
 
-    public int side;  // Define which side this piece is on, 0 for white, 1 for black
     private int oppositeSide;
     // Array of side names which corresponds to the integer value of each side
     private string[] sideNames = {"White", "Black"};
 
-    public bool moving = false;  // Bool which defines if this piece is moving
 
     void Start() {  // Start is called before the first frame in which this object exists
         // Get the GameManager script from the object that hosts it ("GameManager")
