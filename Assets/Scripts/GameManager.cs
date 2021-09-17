@@ -27,6 +27,12 @@ public class GameManager : MonoBehaviour
 
     void Start() {
         Physics.queriesHitTriggers = true;  // Makes sure that player clicks will hit trigger colliders
+
+        isThreatened(new Vector3(), 1);
+    }
+
+    void Update() {
+      isThreatened(new Vector3(0.5f, 0.5f, 3.5f), 0);
     }
 
     public void togglePlayer() {  // Move to the next player's turn
@@ -38,30 +44,28 @@ public class GameManager : MonoBehaviour
     }
 
     public bool isThreatened(Vector3 position, int enemy) {  // Check if a position is threatened by a piece
-        foreach (GameObject piece in pieces) {  // Iterate over all the pieces in the array
 
-            if (piece.GetComponent<ChessPiece>().side != enemy) {  // If the current piece is not on the enemy side
-                continue;
+        foreach (GameObject piece in pieces) {  // Iterate for all pieces in the array
+
+            if (piece.GetComponent<ChessPiece>().side != enemy) {  // If the current piece is not an enemy, skip it
+              continue;
             }
 
-            if (piece.name.Contains("Pawn")) {  // Pawns need a special checking method
-                foreach (Vector3 attackSpace in piece.GetComponent<ChessPiece>().attackSquares) {
-                    if (position == attackSpace) {
-                        return true;
-                    }
-                }
-            } else {
+            // Get a list of legal attack vectors for this piece
+            object[] legalAttacks = piece.GetComponent<ChessPiece>().getLegalMoves();
 
-                // If this piece's legal moves array has only 1 dimension
-                if (piece.GetComponent<ChessPiece>().legalMoves.GetType() == (new Vector3[] {}).GetType()) {
-                    // TODO: 1d array
-                } else {  // Else it must have 2 dimensions
-                  // TODO: 2d array
+            // Check if any of the legal attack vectors match the given position
+            foreach (object attack in legalAttacks) {
+                Debug.Log("" + (Vector3) attack + position);
+                if (((Vector3) attack) == position) {
+                  return true;
                 }
-
             }
 
         }
+
+        return false;
+
     }
 
 }

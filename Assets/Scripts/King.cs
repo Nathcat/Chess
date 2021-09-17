@@ -25,6 +25,10 @@ public class King : ChessPiece  // Derive from ChessPiece parent class
         new Vector3(-1.0f, 0.0f, 0.0f)
     };
 
+    public bool moving = false;  // Tells the script if this piece is moving or not
+    public int side;  // Defines the side that this piece is on
+    public GameManager gameManager;  // GameManager script
+
     private int oppositeSide;
     // Array of side names which corresponds to the integer value of each side
     private string[] sideNames = {"White", "Black"};
@@ -97,5 +101,36 @@ public class King : ChessPiece  // Derive from ChessPiece parent class
 
         // Move to the next player's turn
         gameManager.togglePlayer();
+    }
+
+    override public object[] getLegalMoves() {  // Get a list of the legal moves for this piece
+        ArrayList legalMoveList = new ArrayList();
+
+        foreach (Vector3 legalMove in legalMoves) {  // For all the legal moves this piece has
+
+            // Get a list of colliders in the space this legal move would take this piece to
+            Collider[] piecesInSquare = Physics.OverlapSphere(transform.position + legalMove, 0.5f);
+
+            // Add to the list
+            legalMoveList.Add(transform.position + legalMove);
+
+        }
+
+        return legalMoveList.ToArray();
+    }
+
+    public IEnumerator moveOverTime(Vector3 endPosition) {  // Move to a new position over time
+
+        moving = true;  // This piece is moving
+
+        while (transform.position != endPosition) {  // While this piece's current position is not equal to the given end position
+            // If this is a white piece, move this piece up the board, if it's a black piece, move it down the board
+            if (side == 0) { transform.position += (endPosition - transform.position) * gameManager.pieceMoveSpeed; } else { transform.position += (transform.position - endPosition) * -gameManager.pieceMoveSpeed; }
+
+            yield return new WaitForSeconds(0.01f);  // Wait for 0.01 seconds
+        }
+
+        moving = false;  // The piece has finished moving
+
     }
 }

@@ -23,19 +23,5 @@ abstract public class ChessPiece : MonoBehaviour
     public GameManager gameManager;
 
     abstract public void move(GameObject legalMoveToken);  // Abstract move method
-
-    public IEnumerator moveOverTime(Vector3 endPosition) {  // Move to a new position over time
-
-        moving = true;  // This piece is moving
-
-        while (transform.position != endPosition) {  // While this piece's current position is not equal to the given end position
-            // If this is a white piece, move this piece up the board, if it's a black piece, move it down the board
-            if (side == 0) { transform.position += (endPosition - transform.position) * gameManager.pieceMoveSpeed; } else { transform.position += (transform.position - endPosition) * -gameManager.pieceMoveSpeed; }
-
-            yield return new WaitForSeconds(0.01f);  // Wait for 0.01 seconds
-        }
-
-        moving = false;  // The piece has finished moving
-
-    }
+    abstract public object[] getLegalMoves();  // getLegalMoves abstract method
 }
