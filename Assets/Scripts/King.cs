@@ -25,10 +25,6 @@ public class King : ChessPiece  // Derive from ChessPiece parent class
         new Vector3(-1.0f, 0.0f, 0.0f)
     };
 
-    public bool moving = false;  // Tells the script if this piece is moving or not
-    public int side;  // Defines the side that this piece is on
-    public GameManager gameManager;  // GameManager script
-
     private int oppositeSide;
     // Array of side names which corresponds to the integer value of each side
     private string[] sideNames = {"White", "Black"};

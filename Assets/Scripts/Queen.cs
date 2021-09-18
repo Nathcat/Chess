@@ -96,10 +96,6 @@ public class Queen : ChessPiece  // Derive from ChessPiece parent class
         }
     };
 
-    public bool moving = false;  // Tells the script if this piece is moving or not
-    public int side;  // Defines the side that this piece is on
-    public GameManager gameManager;  // GameManager script
-
     private int oppositeSide;
     private string[] sideNames = {"White", "Black"};
 

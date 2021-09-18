@@ -16,9 +16,6 @@ using UnityEngine;
 
 public class Pawn : ChessPiece  // Derive from ChessPiece parent class
 {
-    public bool moving;  // Tells the script if this piece is moving or not
-    public int side;  // Defines the side that this piece is on
-    public GameManager gameManager;  // GameManager script
     public Vector3[] attackSquares;  // The squares that can be attacked, only used on the Pawn.cs script
     public Vector3[] legalMoves;  // Array of legal moves for this piece
     private int oppositeSide;

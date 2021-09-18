@@ -47,6 +47,10 @@ public class GameManager : MonoBehaviour
 
         foreach (GameObject piece in pieces) {  // Iterate for all pieces in the array
 
+            if (piece == null) {  // If this piece has been captured (the GameObject is destroyed)
+              continue;
+            }
+
             if (piece.GetComponent<ChessPiece>().side != enemy) {  // If the current piece is not an enemy, skip it
               continue;
             }
