@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 
 /*
@@ -24,4 +25,8 @@ abstract public class ChessPiece : MonoBehaviour
 
     abstract public void move(GameObject legalMoveToken);  // Abstract move method
     abstract public object[] getLegalMoves();  // getLegalMoves abstract method
+
+    public float sqrt(float x) {  // Allows subclasses to use Math.Sqrt without having to import System
+      return (float) Math.Sqrt(x);
+    }
 }

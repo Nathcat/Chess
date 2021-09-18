@@ -19,6 +19,9 @@ using System;
 public class GameManager : MonoBehaviour
 {
 
+    public Material red;  // Red material
+    public Material[] pieceMaterials;  // The materials for the pieces on each side
+    public bool shouldShowThreats;  // Should pieces under threat of attack be highlighted
     public float pieceMoveSpeed = 1.0f;  // The speed all pieces should move at
     public GameObject legalMoveToken;  // Legal move token GameObject
     public GameObject attackToken;  // Attack token GameObject
@@ -27,12 +30,12 @@ public class GameManager : MonoBehaviour
 
     void Start() {
         Physics.queriesHitTriggers = true;  // Makes sure that player clicks will hit trigger colliders
-
-        isThreatened(new Vector3(), 1);
     }
 
     void Update() {
-      isThreatened(new Vector3(0.5f, 0.5f, 3.5f), 0);
+      if (shouldShowThreats) {  // If the shouldShowThreats setting is true
+        showThreats();  // Show all pieces under threat from the opponent
+      }
     }
 
     public void togglePlayer() {  // Move to the next player's turn
@@ -60,8 +63,9 @@ public class GameManager : MonoBehaviour
 
             // Check if any of the legal attack vectors match the given position
             foreach (object attack in legalAttacks) {
-                Debug.Log("" + (Vector3) attack + position);
-                if (((Vector3) attack) == position) {
+                Vector3 attackVector = (Vector3) attack;
+
+                if ((attackVector.x == position.x) && (attackVector.z == position.z)) {
                   return true;
                 }
             }
@@ -70,6 +74,31 @@ public class GameManager : MonoBehaviour
 
         return false;
 
+    }
+
+    private void showThreats() {  // Show the threats to the current player's pieces
+        // Iterate for all pieces
+        foreach (GameObject piece in pieces) {
+            // If the current piece does not exist, skip over it
+            if (piece == null) { continue; }
+
+            // If the current piece is the current player's piece
+            if (piece.GetComponent<ChessPiece>().side == turn) {
+                // If the current piece is threatened
+                int oppositeSide;
+                if (turn == 0) { oppositeSide = 1; } else { oppositeSide = 0; }
+
+                if (isThreatened(piece.transform.position, oppositeSide)) {
+                    // Change the colour of the piece to red
+                    piece.GetComponent<MeshRenderer>().material = red;
+                } else {
+                    piece.GetComponent<MeshRenderer>().material = pieceMaterials[turn];
+                }
+
+            } else {
+              piece.GetComponent<MeshRenderer>().material = pieceMaterials[piece.GetComponent<ChessPiece>().side];
+            }
+        }
     }
 
 }

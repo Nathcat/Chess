@@ -134,6 +134,14 @@ public class Pawn : ChessPiece  // Derive from ChessPiece parent class
             // If this is a white piece, move this piece up the board, if it's a black piece, move it down the board
             if (side == 0) { transform.position += (endPosition - transform.position) * gameManager.pieceMoveSpeed; } else { transform.position += (transform.position - endPosition) * -gameManager.pieceMoveSpeed; }
 
+            // If this piece is within 0.1 of it's destination, move it to its destination
+            Vector3 distance = endPosition - transform.position;
+            float distanceMagnitude = sqrt((distance.x * distance.x) + (distance.z * distance.z));
+
+            if (distanceMagnitude <= 0.1f && distanceMagnitude >= -0.1f) {
+                transform.position = endPosition;
+            }
+            
             yield return new WaitForSeconds(0.01f);  // Wait for 0.01 seconds
         }
 

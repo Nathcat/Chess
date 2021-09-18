@@ -150,6 +150,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2614f4a7ba05e4e8699407cdc7514d91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  red: {fileID: 2100000, guid: 2c76f6099073840eb83fe37d0079bc77, type: 2}
+  pieceMaterials:
+  - {fileID: 2100000, guid: 122c2ab471b334df2a1da2c02bc9c496, type: 2}
+  - {fileID: 2100000, guid: b756d544eeba847c0b56c05e661fc57a, type: 2}
+  shouldShowThreats: 0
   pieceMoveSpeed: 0.3
   legalMoveToken: {fileID: 3703031443937251155, guid: 209fd83e1f2c74895b4b0d37447948c3,
     type: 3}
