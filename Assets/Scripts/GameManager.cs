@@ -19,6 +19,9 @@ using System;
 public class GameManager : MonoBehaviour
 {
 
+    public Material red;  // Red material
+    public Material[] pieceMaterials;  // The materials for the pieces on each side
+    public bool shouldShowThreats;  // Should pieces under threat of attack be highlighted
     public float pieceMoveSpeed = 1.0f;  // The speed all pieces should move at
     public GameObject legalMoveToken;  // Legal move token GameObject
     public GameObject attackToken;  // Attack token GameObject
@@ -29,6 +32,12 @@ public class GameManager : MonoBehaviour
         Physics.queriesHitTriggers = true;  // Makes sure that player clicks will hit trigger colliders
     }
 
+    void Update() {
+      if (shouldShowThreats) {  // If the shouldShowThreats setting is true
+        showThreats();  // Show all pieces under threat from the opponent
+      }
+    }
+
     public void togglePlayer() {  // Move to the next player's turn
         if (turn == 0) {  // If it's currently white's turn, make it black's turn
             turn = 1;
@@ -37,309 +46,59 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // TODO: Yeah just redo this entire method, it looks awful and probably doesn't work lol.
-    public bool isThreatened(Vector3 checkSpace, GameObject checkingPiece) {  // Check if a piece is threatened
+    public bool isThreatened(Vector3 position, int enemy) {  // Check if a position is threatened by a piece
 
-        ArrayList threats = new ArrayList();
+        foreach (GameObject piece in pieces) {  // Iterate for all pieces in the array
 
-        foreach(GameObject piece in pieces) {
-
-            if (piece.name == checkingPiece.name) {
-                continue;
+            if (piece == null) {  // If this piece has been captured (the GameObject is destroyed)
+              continue;
             }
 
-            // Work out which spaces the current piece is threatening
-
-            // TODO: Redo the checking algorithms, I should just be able to get a list of legal
-            // move from the chess piece's script, then I wouldn't have to make it specific to
-            // each piece.
-            if (piece.name.Contains("Pawn")) {
-
-                ArrayList tempThreats = new ArrayList();
-
-                Vector3[] legalThreats = {};
-
-                if (piece.CompareTag("White")) {
-
-                    legalThreats = new Vector3[] {
-                        new Vector3(1.0f, 0.0f, 1.0f),
-                        new Vector3(-1.0f, 0.0f, 1.0f)
-                    };
-
-                } else {
-
-                    legalThreats = new Vector3[] {
-                        new Vector3(1.0f, 0.0f, -1.0f),
-                        new Vector3(-1.0f, 0.0f, -1.0f)
-                    };
-
-                }
-
-                foreach (Vector3 legalThreat in legalThreats) {
-                    if (Physics.OverlapSphere(piece.transform.position + legalThreat, 0.5f).Length == 0) {
-                        tempThreats.Add(legalThreat);
-                    }
-                }
-
-                foreach (Vector3 tempThreat in tempThreats) {
-                    threats.Add(tempThreat);
-                }
-
+            if (piece.GetComponent<ChessPiece>().side != enemy) {  // If the current piece is not an enemy, skip it
+              continue;
             }
 
-            if (piece.name.Contains("Rook")) {
+            // Get a list of legal attack vectors for this piece
+            object[] legalAttacks = piece.GetComponent<ChessPiece>().getLegalMoves();
 
-                ArrayList tempThreats = new ArrayList();
+            // Check if any of the legal attack vectors match the given position
+            foreach (object attack in legalAttacks) {
+                Vector3 attackVector = (Vector3) attack;
 
-                Vector3[] legalMoves = {
-
-                    new Vector3(1.0f, 0.0f, 0.0f),
-                    new Vector3(2.0f, 0.0f, 0.0f),
-                    new Vector3(3.0f, 0.0f, 0.0f),
-                    new Vector3(4.0f, 0.0f, 0.0f),
-                    new Vector3(5.0f, 0.0f, 0.0f),
-                    new Vector3(6.0f, 0.0f, 0.0f),
-                    new Vector3(7.0f, 0.0f, 0.0f),
-
-                    new Vector3(-1.0f, 0.0f, 0.0f),
-                    new Vector3(-2.0f, 0.0f, 0.0f),
-                    new Vector3(-3.0f, 0.0f, 0.0f),
-                    new Vector3(-4.0f, 0.0f, 0.0f),
-                    new Vector3(-5.0f, 0.0f, 0.0f),
-                    new Vector3(-6.0f, 0.0f, 0.0f),
-                    new Vector3(-7.0f, 0.0f, 0.0f),
-
-                    new Vector3(0.0f, 0.0f, 1.0f),
-                    new Vector3(0.0f, 0.0f, 2.0f),
-                    new Vector3(0.0f, 0.0f, 3.0f),
-                    new Vector3(0.0f, 0.0f, 4.0f),
-                    new Vector3(0.0f, 0.0f, 5.0f),
-                    new Vector3(0.0f, 0.0f, 6.0f),
-                    new Vector3(0.0f, 0.0f, 7.0f),
-
-                    new Vector3(0.0f, 0.0f, -1.0f),
-                    new Vector3(0.0f, 0.0f, -2.0f),
-                    new Vector3(0.0f, 0.0f, -3.0f),
-                    new Vector3(0.0f, 0.0f, -4.0f),
-                    new Vector3(0.0f, 0.0f, -5.0f),
-                    new Vector3(0.0f, 0.0f, -6.0f),
-                    new Vector3(0.0f, 0.0f, -7.0f)
-                };
-
-                foreach (Vector3 legalMove in legalMoves) {
-                    if (Physics.OverlapSphere(piece.transform.position + legalMove, 0.5f).Length == 0) {
-                        tempThreats.Add(legalMove);
-                    }
+                if ((attackVector.x == position.x) && (attackVector.z == position.z)) {
+                  return true;
                 }
-
-                foreach (Vector3 tempThreat in tempThreats) {
-                    threats.Add(tempThreat);
-                }
-
             }
 
-            if (piece.name.Contains("Bishop")) {
-
-                ArrayList tempThreats = new ArrayList();
-
-                Vector3[] legalMoves = {
-                    new Vector3(1.0f, 0.0f, 1.0f),
-                    new Vector3(2.0f, 0.0f, 2.0f),
-                    new Vector3(3.0f, 0.0f, 3.0f),
-                    new Vector3(4.0f, 0.0f, 4.0f),
-                    new Vector3(5.0f, 0.0f, 5.0f),
-                    new Vector3(6.0f, 0.0f, 6.0f),
-                    new Vector3(7.0f, 0.0f, 7.0f),
-
-                    new Vector3(-1.0f, 0.0f, -1.0f),
-                    new Vector3(-2.0f, 0.0f, -2.0f),
-                    new Vector3(-3.0f, 0.0f, -3.0f),
-                    new Vector3(-4.0f, 0.0f, -4.0f),
-                    new Vector3(-5.0f, 0.0f, -5.0f),
-                    new Vector3(-6.0f, 0.0f, -6.0f),
-                    new Vector3(-7.0f, 0.0f, -6.0f),
-
-                    new Vector3(-1.0f, 0.0f, 1.0f),
-                    new Vector3(-2.0f, 0.0f, 2.0f),
-                    new Vector3(-3.0f, 0.0f, 3.0f),
-                    new Vector3(-4.0f, 0.0f, 4.0f),
-                    new Vector3(-5.0f, 0.0f, 5.0f),
-                    new Vector3(-6.0f, 0.0f, 6.0f),
-                    new Vector3(-7.0f, 0.0f, 7.0f),
-
-                    new Vector3(1.0f, 0.0f, -1.0f),
-                    new Vector3(2.0f, 0.0f, -2.0f),
-                    new Vector3(3.0f, 0.0f, -3.0f),
-                    new Vector3(4.0f, 0.0f, -4.0f),
-                    new Vector3(5.0f, 0.0f, -5.0f),
-                    new Vector3(6.0f, 0.0f, -6.0f),
-                    new Vector3(7.0f, 0.0f, -7.0f)
-
-                };
-
-                foreach (Vector3 legalMove in legalMoves) {
-                    if (Physics.OverlapSphere(piece.transform.position + legalMove, 0.5f).Length == 0) {
-                        tempThreats.Add(legalMove);
-                    }
-                }
-
-                foreach (Vector3 tempThreat in tempThreats) {
-                    threats.Add(tempThreat);
-                }
-
-            }
-
-            if (piece.name.Contains("Queen")) {
-
-                ArrayList tempThreats = new ArrayList();
-
-                Vector3[] legalMoves = {
-                    new Vector3(1.0f, 0.0f, 1.0f),
-                    new Vector3(2.0f, 0.0f, 2.0f),
-                    new Vector3(3.0f, 0.0f, 3.0f),
-                    new Vector3(4.0f, 0.0f, 4.0f),
-                    new Vector3(5.0f, 0.0f, 5.0f),
-                    new Vector3(6.0f, 0.0f, 6.0f),
-                    new Vector3(7.0f, 0.0f, 7.0f),
-
-                    new Vector3(-1.0f, 0.0f, -1.0f),
-                    new Vector3(-2.0f, 0.0f, -2.0f),
-                    new Vector3(-3.0f, 0.0f, -3.0f),
-                    new Vector3(-4.0f, 0.0f, -4.0f),
-                    new Vector3(-5.0f, 0.0f, -5.0f),
-                    new Vector3(-6.0f, 0.0f, -6.0f),
-                    new Vector3(-7.0f, 0.0f, -6.0f),
-
-                    new Vector3(-1.0f, 0.0f, 1.0f),
-                    new Vector3(-2.0f, 0.0f, 2.0f),
-                    new Vector3(-3.0f, 0.0f, 3.0f),
-                    new Vector3(-4.0f, 0.0f, 4.0f),
-                    new Vector3(-5.0f, 0.0f, 5.0f),
-                    new Vector3(-6.0f, 0.0f, 6.0f),
-                    new Vector3(-7.0f, 0.0f, 7.0f),
-
-                    new Vector3(1.0f, 0.0f, -1.0f),
-                    new Vector3(2.0f, 0.0f, -2.0f),
-                    new Vector3(3.0f, 0.0f, -3.0f),
-                    new Vector3(4.0f, 0.0f, -4.0f),
-                    new Vector3(5.0f, 0.0f, -5.0f),
-                    new Vector3(6.0f, 0.0f, -6.0f),
-                    new Vector3(7.0f, 0.0f, -7.0f),
-
-                    new Vector3(1.0f, 0.0f, 0.0f),
-                    new Vector3(2.0f, 0.0f, 0.0f),
-                    new Vector3(3.0f, 0.0f, 0.0f),
-                    new Vector3(4.0f, 0.0f, 0.0f),
-                    new Vector3(5.0f, 0.0f, 0.0f),
-                    new Vector3(6.0f, 0.0f, 0.0f),
-                    new Vector3(7.0f, 0.0f, 0.0f),
-
-                    new Vector3(-1.0f, 0.0f, 0.0f),
-                    new Vector3(-2.0f, 0.0f, 0.0f),
-                    new Vector3(-3.0f, 0.0f, 0.0f),
-                    new Vector3(-4.0f, 0.0f, 0.0f),
-                    new Vector3(-5.0f, 0.0f, 0.0f),
-                    new Vector3(-6.0f, 0.0f, 0.0f),
-                    new Vector3(-7.0f, 0.0f, 0.0f),
-
-                    new Vector3(0.0f, 0.0f, 1.0f),
-                    new Vector3(0.0f, 0.0f, 2.0f),
-                    new Vector3(0.0f, 0.0f, 3.0f),
-                    new Vector3(0.0f, 0.0f, 4.0f),
-                    new Vector3(0.0f, 0.0f, 5.0f),
-                    new Vector3(0.0f, 0.0f, 6.0f),
-                    new Vector3(0.0f, 0.0f, 7.0f),
-
-                    new Vector3(0.0f, 0.0f, -1.0f),
-                    new Vector3(0.0f, 0.0f, -2.0f),
-                    new Vector3(0.0f, 0.0f, -3.0f),
-                    new Vector3(0.0f, 0.0f, -4.0f),
-                    new Vector3(0.0f, 0.0f, -5.0f),
-                    new Vector3(0.0f, 0.0f, -6.0f),
-                    new Vector3(0.0f, 0.0f, -7.0f)
-
-                };
-
-                foreach (Vector3 legalMove in legalMoves) {
-                    if (Physics.OverlapSphere(piece.transform.position + legalMove, 0.5f).Length == 0) {
-                        tempThreats.Add(legalMove);
-                    }
-                }
-
-                foreach (Vector3 tempThreat in tempThreats) {
-                    threats.Add(tempThreat);
-                }
-
-            }
-
-            if (piece.name.Contains("King")) {
-
-                ArrayList tempThreats = new ArrayList();
-
-                Vector3[] legalMoves = {
-
-                    new Vector3(-1.0f, 0.0f, -1.0f),
-                    new Vector3(0.0f, 0.0f, -1.0f),
-                    new Vector3(1.0f, 0.0f, -1.0f),
-                    new Vector3(1.0f, 0.0f, 0.0f),
-                    new Vector3(1.0f, 0.0f, 1.0f),
-                    new Vector3(0.0f, 0.0f, 1.0f),
-                    new Vector3(-1.0f, 0.0f, 1.0f),
-                    new Vector3(-1.0f, 0.0f, 0.0f)
-
-                };
-
-                foreach (Vector3 legalMove in legalMoves) {
-                    if (Physics.OverlapSphere(piece.transform.position + legalMove, 0.5f).Length == 0) {
-                        tempThreats.Add(legalMove);
-                    }
-                }
-
-                foreach (Vector3 tempThreat in tempThreats) {
-                    threats.Add(tempThreat);
-                }
-
-            }
-
-            if (piece.name.Contains("Knight")) {
-
-                ArrayList tempThreats = new ArrayList();
-
-                Vector3[] legalMoves = {
-
-                    new Vector3(1.0f, 0.0f, 2.0f),
-                    new Vector3(2.0f, 0.0f, 1.0f),
-                    new Vector3(-1.0f, 0.0f, 2.0f),
-                    new Vector3(-2.0f, 0.0f, 1.0f),
-                    new Vector3(1.0f, 0.0f, -2.0f),
-                    new Vector3(2.0f, 0.0f, -1.0f),
-                    new Vector3(-1.0f, 0.0f, -2.0f),
-                    new Vector3(-2.0f, 0.0f, -1.0f)
-
-                };
-
-                foreach (Vector3 legalMove in legalMoves) {
-                    if (Physics.OverlapSphere(piece.transform.position + legalMove, 0.5f).Length == 0) {
-                        tempThreats.Add(legalMove);
-                    }
-                }
-
-                foreach (Vector3 tempThreat in tempThreats) {
-                    threats.Add(tempThreat);
-                }
-
-            }
-
-        }
-
-        for (int x = 0; x < threats.Count; x++) {  // Iterate through the list of threats
-            if (threats.Contains(checkSpace)) {  // If checkSpace in in the check space, checkSpace is threatened
-                return true;
-            }
         }
 
         return false;
 
+    }
+
+    private void showThreats() {  // Show the threats to the current player's pieces
+        // Iterate for all pieces
+        foreach (GameObject piece in pieces) {
+            // If the current piece does not exist, skip over it
+            if (piece == null) { continue; }
+
+            // If the current piece is the current player's piece
+            if (piece.GetComponent<ChessPiece>().side == turn) {
+                // If the current piece is threatened
+                int oppositeSide;
+                if (turn == 0) { oppositeSide = 1; } else { oppositeSide = 0; }
+
+                if (isThreatened(piece.transform.position, oppositeSide)) {
+                    // Change the colour of the piece to red
+                    piece.GetComponent<MeshRenderer>().material = red;
+                } else {
+                    piece.GetComponent<MeshRenderer>().material = pieceMaterials[turn];
+                }
+
+            } else {
+              piece.GetComponent<MeshRenderer>().material = pieceMaterials[piece.GetComponent<ChessPiece>().side];
+            }
+        }
     }
 
 }

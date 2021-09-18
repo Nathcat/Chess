@@ -16,9 +16,8 @@ using UnityEngine;
 
 public class Pawn : ChessPiece  // Derive from ChessPiece parent class
 {
-    private Vector3[] legalMoves;  // Array to hold the legal moves for this piece
-    public Vector3[] attackSquares;  // Array to hold the spaces this piece can attack
-
+    public Vector3[] attackSquares;  // The squares that can be attacked, only used on the Pawn.cs script
+    public Vector3[] legalMoves;  // Array of legal moves for this piece
     private int oppositeSide;
     private string[] sideNames = {"White", "Black"};
 
@@ -115,5 +114,38 @@ public class Pawn : ChessPiece  // Derive from ChessPiece parent class
         if (side == 0) { legalMoves = new Vector3[] { new Vector3(0.0f, 0.0f, 1.0f) }; } else { legalMoves = new Vector3[] { new Vector3(0.0f, 0.0f, -1.0f) }; }
 
         gameManager.togglePlayer();  // Move to the next player's turn
+    }
+
+    override public object[] getLegalMoves() {  // Get a list of this piece's legal moves
+        ArrayList legalMoveList = new ArrayList();
+
+        foreach (Vector3 attackSquare in attackSquares) {
+          legalMoveList.Add(transform.position + attackSquare);
+        }
+
+        return legalMoveList.ToArray();
+    }
+
+    public IEnumerator moveOverTime(Vector3 endPosition) {  // Move to a new position over time
+
+        moving = true;  // This piece is moving
+
+        while (transform.position != endPosition) {  // While this piece's current position is not equal to the given end position
+            // If this is a white piece, move this piece up the board, if it's a black piece, move it down the board
+            if (side == 0) { transform.position += (endPosition - transform.position) * gameManager.pieceMoveSpeed; } else { transform.position += (transform.position - endPosition) * -gameManager.pieceMoveSpeed; }
+
+            // If this piece is within 0.1 of it's destination, move it to its destination
+            Vector3 distance = endPosition - transform.position;
+            float distanceMagnitude = sqrt((distance.x * distance.x) + (distance.z * distance.z));
+
+            if (distanceMagnitude <= 0.1f && distanceMagnitude >= -0.1f) {
+                transform.position = endPosition;
+            }
+            
+            yield return new WaitForSeconds(0.01f);  // Wait for 0.01 seconds
+        }
+
+        moving = false;  // The piece has finished moving
+
     }
 }

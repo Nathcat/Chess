@@ -136,4 +136,60 @@ public class Rook : ChessPiece  // Derive from ChessPiece parent class
 
         gameManager.togglePlayer();  // Move to the next player's turn
     }
+
+    override public object[] getLegalMoves() {  // Return a list of legal moves for this piece
+      ArrayList legalMoveList = new ArrayList();
+
+      for (int legalMoveSet = 0; legalMoveSet < 4; legalMoveSet++) {  // legalMoves.Length should equal 4, but apparently it equals 28?!?!?!
+
+          for (int legalMove = 0; legalMove < legalMoves.GetRow(legalMoveSet).Length; legalMove++) {
+
+               // Check for pieces in the current legal move space
+              Collider[] piecesInSquare = Physics.OverlapSphere(transform.position + legalMoves[legalMoveSet, legalMove], 0.5f);
+
+              if (piecesInSquare.Length == 1) {  // Add to list and break the inner loop
+
+                  // Add this move to the list of legal moves
+                  legalMoveList.Add(transform.position + legalMoves[legalMoveSet, legalMove]);
+
+                  break;  // Break the inner loop, so that there are no more move tokens created in this direction
+
+              }
+
+              if (piecesInSquare.Length == 0) {  // Add to list
+
+                  // Add this move to the list of legal moves
+                  legalMoveList.Add(transform.position + legalMoves[legalMoveSet, legalMove]);
+
+              }
+
+          }
+
+      }
+
+      return legalMoveList.ToArray();
+    }
+
+    public IEnumerator moveOverTime(Vector3 endPosition) {  // Move to a new position over time
+
+        moving = true;  // This piece is moving
+
+        while (transform.position != endPosition) {  // While this piece's current position is not equal to the given end position
+            // If this is a white piece, move this piece up the board, if it's a black piece, move it down the board
+            if (side == 0) { transform.position += (endPosition - transform.position) * gameManager.pieceMoveSpeed; } else { transform.position += (transform.position - endPosition) * -gameManager.pieceMoveSpeed; }
+
+            // If this piece is within 0.1 of it's destination, move it to its destination
+            Vector3 distance = endPosition - transform.position;
+            float distanceMagnitude = sqrt((distance.x * distance.x) + (distance.z * distance.z));
+
+            if (distanceMagnitude <= 0.1f && distanceMagnitude >= -0.1f) {
+                transform.position = endPosition;
+            }
+            
+            yield return new WaitForSeconds(0.01f);  // Wait for 0.01 seconds
+        }
+
+        moving = false;  // The piece has finished moving
+
+    }
 }
