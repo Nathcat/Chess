@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System;
+using UnityEngine.UI;
 
 
 /*
@@ -27,6 +28,8 @@ public class GameManager : MonoBehaviour
     public GameObject attackToken;  // Attack token GameObject
     public int turn = 0;  // Tracks which player's turn it is, 0 for white, 1 for black
     public GameObject[] pieces;  // Array of chess piece GameObjects
+    public bool[] inCheck = {false, false};  // Array to show if each side is in check
+    public GameObject checkText;  // UI text to tell the player they are in check
 
     void Start() {
         Physics.queriesHitTriggers = true;  // Makes sure that player clicks will hit trigger colliders
@@ -35,6 +38,34 @@ public class GameManager : MonoBehaviour
     void Update() {
       if (shouldShowThreats) {  // If the shouldShowThreats setting is true
         showThreats();  // Show all pieces under threat from the opponent
+      }
+
+      // Check if the either player is in check
+      GameObject whiteKing = null;
+      GameObject blackKing = null;
+
+      foreach (GameObject piece in pieces) {
+        if (piece == null) {
+          continue;
+        }
+
+        if (piece.name == "King_white") {
+          whiteKing = piece;
+        }
+
+        if (piece.name == "King_black") {
+          blackKing = piece;
+        }
+      }
+
+      inCheck[0] = isThreatened(whiteKing.transform.position, 1);
+      inCheck[1] = isThreatened(blackKing.transform.position, 0);
+
+      if (inCheck[turn]) {
+        checkText.GetComponent<Text>().text = "Check!";
+        checkText.SetActive(true);
+      } else {
+        checkText.SetActive(false);
       }
     }
 
@@ -48,6 +79,8 @@ public class GameManager : MonoBehaviour
 
     public bool isThreatened(Vector3 position, int enemy) {  // Check if a position is threatened by a piece
 
+        Debug.Log("-----");
+        
         foreach (GameObject piece in pieces) {  // Iterate for all pieces in the array
 
             if (piece == null) {  // If this piece has been captured (the GameObject is destroyed)
@@ -59,11 +92,15 @@ public class GameManager : MonoBehaviour
             }
 
             // Get a list of legal attack vectors for this piece
-            object[] legalAttacks = piece.GetComponent<ChessPiece>().getLegalMoves();
+            object[] legalAttacks = piece.GetComponent<ChessPiece>().getLegalAttacks();
 
             // Check if any of the legal attack vectors match the given position
             foreach (object attack in legalAttacks) {
                 Vector3 attackVector = (Vector3) attack;
+
+                if (piece.name == "Queen_white") {
+                  Debug.Log(attackVector + ", " + position + ", " + ((attackVector.x == position.x) && (attackVector.z == position.z)));
+                }
 
                 if ((attackVector.x == position.x) && (attackVector.z == position.z)) {
                   return true;

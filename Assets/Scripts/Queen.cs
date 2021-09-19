@@ -179,25 +179,25 @@ public class Queen : ChessPiece  // Derive from ChessPiece parent class
     override public object[] getLegalMoves() {  // Return a list of legal moves for this piece
       ArrayList legalMoveList = new ArrayList();
 
-      for (int legalMoveSet = 0; legalMoveSet < 4; legalMoveSet++) {  // legalMoves.Length should equal 4, but apparently it equals 28?!?!?!
+      for (int legalMoveSet = 0; legalMoveSet < 8; legalMoveSet++) {
 
           for (int legalMove = 0; legalMove < legalMoves.GetRow(legalMoveSet).Length; legalMove++) {
 
                // Check for pieces in the current legal move space
               Collider[] piecesInSquare = Physics.OverlapSphere(transform.position + legalMoves[legalMoveSet, legalMove], 0.5f);
 
-              if (piecesInSquare.Length == 1) {  // Add to list and break the inner loop
+              if (piecesInSquare.Length == 1) {  // Show attack token and break the inner loop if there is a piece in the space
 
-                  // Add this move to the list of legal moves
-                  legalMoveList.Add(transform.position + legalMoves[legalMoveSet, legalMove]);
-
-                  break;  // Break the inner loop, so that there are no more move tokens created in this direction
+                  if (piecesInSquare[0].transform.gameObject.CompareTag(sideNames[oppositeSide])) {  // If the piece in the space is on the opposite side
+                      legalMoveList.Add(transform.position + legalMoves[legalMoveSet, legalMove]);
+                  }
+                  // Break the inner loop so that there are no more move tokens created in this direction
+                  break;
 
               }
 
-              if (piecesInSquare.Length == 0) {  // Add to list
+              if (piecesInSquare.Length == 0) {  // Create a normal move token if there are no pieces in the space
 
-                  // Add this move to the list of legal moves
                   legalMoveList.Add(transform.position + legalMoves[legalMoveSet, legalMove]);
 
               }
@@ -224,7 +224,7 @@ public class Queen : ChessPiece  // Derive from ChessPiece parent class
             if (distanceMagnitude <= 0.1f && distanceMagnitude >= -0.1f) {
                 transform.position = endPosition;
             }
-            
+
             yield return new WaitForSeconds(0.01f);  // Wait for 0.01 seconds
         }
 

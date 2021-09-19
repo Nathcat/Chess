@@ -119,11 +119,28 @@ public class Pawn : ChessPiece  // Derive from ChessPiece parent class
     override public object[] getLegalMoves() {  // Get a list of this piece's legal moves
         ArrayList legalMoveList = new ArrayList();
 
-        foreach (Vector3 attackSquare in attackSquares) {
-          legalMoveList.Add(transform.position + attackSquare);
+        foreach (Vector3 legalMove in legalMoves) {
+          legalMoveList.Add(transform.position + legalMove);
         }
 
         return legalMoveList.ToArray();
+    }
+
+    override public object[] getLegalAttacks() {  // Get a list of legal attacks
+      ArrayList legalAttacksList = new ArrayList();
+
+      foreach (Vector3 legalAttack in attackSquares) {
+        // Check if there is a piece in the legal attack space
+        Collider[] piecesInSquare = Physics.OverlapSphere(transform.position + legalAttack, 0.5f);
+
+        if (piecesInSquare.Length == 1) {  // If there is a piece in the space
+          if (piecesInSquare[0].transform.gameObject.CompareTag(sideNames[oppositeSide])) {  // If the piece is on the opposite side
+            legalAttacksList.Add(transform.position + legalAttack);
+          }
+        }
+      }
+
+      return legalAttacksList.ToArray();
     }
 
     public IEnumerator moveOverTime(Vector3 endPosition) {  // Move to a new position over time
@@ -141,7 +158,7 @@ public class Pawn : ChessPiece  // Derive from ChessPiece parent class
             if (distanceMagnitude <= 0.1f && distanceMagnitude >= -0.1f) {
                 transform.position = endPosition;
             }
-            
+
             yield return new WaitForSeconds(0.01f);  // Wait for 0.01 seconds
         }
 
