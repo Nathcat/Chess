@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour
     public GameObject[] pieces;  // Array of chess piece GameObjects
     public bool[] inCheck = {false, false};  // Array to show if each side is in check
     public GameObject checkText;  // UI text to tell the player they are in check
+    public GameObject tempCollider;  // Object with a single collider component that is used for checking moves
 
     void Start() {
         Physics.queriesHitTriggers = true;  // Makes sure that player clicks will hit trigger colliders
@@ -79,8 +80,6 @@ public class GameManager : MonoBehaviour
 
     public bool isThreatened(Vector3 position, int enemy) {  // Check if a position is threatened by a piece
 
-        Debug.Log("-----");
-        
         foreach (GameObject piece in pieces) {  // Iterate for all pieces in the array
 
             if (piece == null) {  // If this piece has been captured (the GameObject is destroyed)
@@ -97,10 +96,6 @@ public class GameManager : MonoBehaviour
             // Check if any of the legal attack vectors match the given position
             foreach (object attack in legalAttacks) {
                 Vector3 attackVector = (Vector3) attack;
-
-                if (piece.name == "Queen_white") {
-                  Debug.Log(attackVector + ", " + position + ", " + ((attackVector.x == position.x) && (attackVector.z == position.z)));
-                }
 
                 if ((attackVector.x == position.x) && (attackVector.z == position.z)) {
                   return true;
@@ -136,6 +131,12 @@ public class GameManager : MonoBehaviour
               piece.GetComponent<MeshRenderer>().material = pieceMaterials[piece.GetComponent<ChessPiece>().side];
             }
         }
+    }
+
+    public void updatePieceMovesForCheck() {  // In the case of a check, update the legal moves of pieces to only include moves that are legal in terms of check
+      ArrayList legalMovePositions_ = new ArrayList();  // ArrayList containing all the moves the current player can make that are legal
+
+      // TODO
     }
 
 }

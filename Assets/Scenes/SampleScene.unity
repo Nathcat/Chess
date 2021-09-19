@@ -196,6 +196,7 @@ MonoBehaviour:
   - {fileID: 1308284676}
   inCheck: 0000
   checkText: {fileID: 2022136557}
+  tempCollider: {fileID: 0}
 --- !u!4 &54797314
 Transform:
   m_ObjectHideFlags: 0

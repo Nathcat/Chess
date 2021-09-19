@@ -165,4 +165,30 @@ public class Pawn : ChessPiece  // Derive from ChessPiece parent class
         moving = false;  // The piece has finished moving
 
     }
+
+    override public void resetLegalMoves() {  // Reset this piece's legal moves array
+      if (side == 0) {
+        // If this is a white piece, moves should go up the board
+        attackSquares = new Vector3[] {
+            new Vector3(1.0f, 0.0f, 1.0f),
+            new Vector3(-1.0f, 0.0f, 1.0f)
+        };
+
+        legalMoves = new Vector3[] {
+            new Vector3(0.0f, 0.0f, 1.0f)
+        };
+
+      } else {
+        // Else they should go down the board
+        attackSquares = new Vector3[] {
+            new Vector3(1.0f, 0.0f, -1.0f),
+            new Vector3(-1.0f, 0.0f, -1.0f)
+        };
+
+        legalMoves = new Vector3[] {
+            new Vector3(0.0f, 0.0f, -1.0f)
+        };
+
+      }
+    }
 }

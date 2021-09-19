@@ -130,11 +130,24 @@ public class King : ChessPiece  // Derive from ChessPiece parent class
             if (distanceMagnitude <= 0.1f && distanceMagnitude >= -0.1f) {
                 transform.position = endPosition;
             }
-            
+
             yield return new WaitForSeconds(0.01f);  // Wait for 0.01 seconds
         }
 
         moving = false;  // The piece has finished moving
 
+    }
+
+    override public void resetLegalMoves() {  // Reset this piece's legal moves array
+      legalMoves = new Vector3[] {
+          new Vector3(-1.0f, 0.0f, -1.0f),
+          new Vector3(0.0f, 0.0f, -1.0f),
+          new Vector3(1.0f, 0.0f, -1.0f),
+          new Vector3(1.0f, 0.0f, 0.0f),
+          new Vector3(1.0f, 0.0f, 1.0f),
+          new Vector3(0.0f, 0.0f, 1.0f),
+          new Vector3(-1.0f, 0.0f, 1.0f),
+          new Vector3(-1.0f, 0.0f, 0.0f)
+      };
     }
 }
