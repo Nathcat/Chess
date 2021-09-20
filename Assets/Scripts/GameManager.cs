@@ -133,55 +133,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void updatePieceMovesForCheck() {  // In the case of a check, update the legal moves of pieces to only include moves that are legal in terms of check
-      ArrayList legalMovePositions_ = new ArrayList();  // ArrayList containing all the moves the current player can make that are legal
-
-      // Determine the current player's king
-      GameObject kingPiece;
-      foreach (GameObject piece in pieces) {
-        if (turn == 0) {
-
-          if (piece.name == "King_white") {
-            kingPiece = piece;
-          }
-
-        } else {
-
-          if (piece.name == "King_black") {
-            kingPiece = piece;
-          }
-
-        }
-      }
-
-      foreach (GameObject piece in pieces) {  // Iterate for each piece in the array
-        // Check that the piece exists, if not, skip it
-        if (piece == null) {
-          continue;
-        }
-
-        // Check that the piece is on the current player's side, if not, skip it
-        if (piece.GetComponent<ChessPiece>().side != turn) {
-          continue;
-        }
-
-        // Iterate for all of the current piece's legal moves
-        foreach (Vector3 legalMove in piece.GetComponent<ChessPiece>().getLegalMoves()) {
-          GameObject tempCollider_ = Instantiate(tempCollider, piece.transform.position + legalMove, new Quaternion());
-
-          if (!isThreatened(kingPiece.transform.position, piece.GetComponent<ChessPiece>().oppositeSide)) {
-            legalMovePositions_.Add(piece.transform.position + legalMove);
-          }
-
-          Destroy(tempCollider_);
-        }
-      }
-
-      // Now we have a list of moves that can be made to get out of check, we must update each piece's legal
-      // moves array to reflect these valid moves.
-      // TODO
-    }
-
 }
 
 public static class ArrayExt  // Array extension class to easily get rows and columns from a 2d array.

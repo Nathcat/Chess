@@ -137,17 +137,4 @@ public class Knight : ChessPiece  // Derive from ChessPiece parent class
         moving = false;  // The piece has finished moving
 
     }
-
-    override public void resetLegalMoves() {  // Reset this piece's legal moves array
-      legalMoves = new Vector3[] {  // Array of legal moves for this piece
-          new Vector3(1.0f, 0.0f, 2.0f),
-          new Vector3(2.0f, 0.0f, 1.0f),
-          new Vector3(-1.0f, 0.0f, 2.0f),
-          new Vector3(-2.0f, 0.0f, 1.0f),
-          new Vector3(1.0f, 0.0f, -2.0f),
-          new Vector3(2.0f, 0.0f, -1.0f),
-          new Vector3(-1.0f, 0.0f, -2.0f),
-          new Vector3(-2.0f, 0.0f, -1.0f)
-      };
-    }
 }

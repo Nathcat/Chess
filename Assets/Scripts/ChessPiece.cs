@@ -26,7 +26,6 @@ abstract public class ChessPiece : MonoBehaviour
 
     abstract public void move(GameObject legalMoveToken);  // Abstract move method
     abstract public object[] getLegalMoves();  // getLegalMoves abstract method
-    abstract public void resetLegalMoves();  // resetLegalMoves abstract method
 
     public virtual object[] getLegalAttacks() {  // getLegalAttacks mehtod
       return getLegalMoves();
