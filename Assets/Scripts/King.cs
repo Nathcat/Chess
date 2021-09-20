@@ -25,7 +25,6 @@ public class King : ChessPiece  // Derive from ChessPiece parent class
         new Vector3(-1.0f, 0.0f, 0.0f)
     };
 
-    private int oppositeSide;
     // Array of side names which corresponds to the integer value of each side
     private string[] sideNames = {"White", "Black"};
 

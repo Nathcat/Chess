@@ -21,6 +21,7 @@ abstract public class ChessPiece : MonoBehaviour
 {
     public bool moving;
     public int side;
+    public int oppositeSide;
     public GameManager gameManager;
 
     abstract public void move(GameObject legalMoveToken);  // Abstract move method

@@ -25,7 +25,6 @@ public class Knight : ChessPiece  // Derive from ChessPiece parent class
         new Vector3(-2.0f, 0.0f, -1.0f)
     };
 
-    private int oppositeSide;
     private string[] sideNames = {"White", "Black"};
 
 

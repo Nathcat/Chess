@@ -56,7 +56,6 @@ public class Rook : ChessPiece  // Derive from ChessPiece parent class
         }
     };
 
-    private int oppositeSide;
     private string[] sideNames = {"White", "Black"};
 
 

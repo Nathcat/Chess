@@ -18,7 +18,6 @@ public class Pawn : ChessPiece  // Derive from ChessPiece parent class
 {
     public Vector3[] attackSquares;  // The squares that can be attacked, only used on the Pawn.cs script
     public Vector3[] legalMoves;  // Array of legal moves for this piece
-    private int oppositeSide;
     private string[] sideNames = {"White", "Black"};
 
 

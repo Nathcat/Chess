@@ -65,7 +65,6 @@ public class Bishop : ChessPiece  // Derive from the ChessPiece parent class
         }
     };
 
-    private int oppositeSide;  // Integer representing the side that this piece is not on.
     // The names of each side in an array corresponding to the integer representations of each side
     private string[] sideNames = {"White", "Black"};
 
