@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
     public bool[] inCheck = {false, false};  // Array to show if each side is in check
     public GameObject checkText;  // UI text to tell the player they are in check
     public GameObject tempCollider;  // Object with a single collider component that is used for checking moves
+    public ArrayList checkingPieces = new ArrayList();  // ArrayList containing all the pieces putting the king in check
 
     void Start() {
         Physics.queriesHitTriggers = true;  // Makes sure that player clicks will hit trigger colliders
@@ -59,12 +60,27 @@ public class GameManager : MonoBehaviour
         }
       }
 
-      inCheck[0] = isThreatened(whiteKing.transform.position, 1);
-      inCheck[1] = isThreatened(blackKing.transform.position, 0);
+      inCheck[0] = (bool) isThreatened(whiteKing.transform.position, 1)[0];
+      inCheck[1] = (bool) isThreatened(blackKing.transform.position, 0)[0];
 
       if (inCheck[turn]) {
         checkText.GetComponent<Text>().text = "Check!";
         checkText.SetActive(true);
+        if (turn == 0) {
+          object[] threatReport = isThreatened(whiteKing.transform.position, 1);
+          checkingPieces = new ArrayList();
+
+          for (int x = 1; x < threatReport.Length; x++) {
+            checkingPieces.Add(threatReport[x]);
+          }
+        } else if (turn == 1) {
+          object[] threatReport = isThreatened(blackKing.transform.position, 0);
+          checkingPieces = new ArrayList();
+
+          for (int x = 1; x < threatReport.Length; x++) {
+            checkingPieces.Add(threatReport[x]);
+          }
+        }
       } else {
         checkText.SetActive(false);
       }
@@ -78,7 +94,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public bool isThreatened(Vector3 position, int enemy) {  // Check if a position is threatened by a piece
+    public object[] isThreatened(Vector3 position, int enemy) {  // Check if a position is threatened by a piece
+
+        ArrayList threatReport = new ArrayList();
+        threatReport.Add(false);
 
         foreach (GameObject piece in pieces) {  // Iterate for all pieces in the array
 
@@ -98,13 +117,16 @@ public class GameManager : MonoBehaviour
                 Vector3 attackVector = (Vector3) attack;
 
                 if ((attackVector.x == position.x) && (attackVector.z == position.z)) {
-                  return true;
+                  if (((bool) threatReport[0]) != true) {
+                    threatReport[0] = true;
+                    threatReport.Add(piece);
+                  }
                 }
             }
 
         }
 
-        return false;
+        return threatReport.ToArray();
 
     }
 
@@ -120,7 +142,7 @@ public class GameManager : MonoBehaviour
                 int oppositeSide;
                 if (turn == 0) { oppositeSide = 1; } else { oppositeSide = 0; }
 
-                if (isThreatened(piece.transform.position, oppositeSide)) {
+                if (((bool) isThreatened(piece.transform.position, oppositeSide)[0])) {
                     // Change the colour of the piece to red
                     piece.GetComponent<MeshRenderer>().material = red;
                 } else {

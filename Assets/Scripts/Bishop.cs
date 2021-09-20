@@ -94,6 +94,11 @@ public class Bishop : ChessPiece  // Derive from the ChessPiece parent class
                 Destroy(moveToken);
             }
 
+            if (gameManager.inCheck[side]) {  // There is a special protocal for moving when the King is in check
+              inCheckMove();
+              return;
+            }
+
             // Create the legal move tokens in the positions defined in the legalMoves array
             for (int legalMoveSet = 0; legalMoveSet < 4; legalMoveSet++) {  // legalMoves.Length should equal 4, but apparently it equals 28?!?!?!
 
@@ -200,5 +205,29 @@ public class Bishop : ChessPiece  // Derive from the ChessPiece parent class
 
         moving = false;  // The piece has finished moving
 
+    }
+
+    void inCheckMove() {  // Special protocol for moves when the king is in check
+      object[] checkingPieces = gameManager.checkingPieces.ToArray();
+
+      // Check if this piece can take any of the pieces putting the king in check
+      for (int x = 0; x < 4; x++) {
+        for (int y = 0; y < 7; y++) {
+
+          Vector2 legalMove = new Vector2(legalMoves[x, y].x, legalMoves[x, y].z) + new Vector2(transform.position.x, transform.position.z);
+
+          foreach (GameObject piece in checkingPieces) {
+            Vector2 piecePosition = new Vector2(piece.transform.position.x, piece.transform.position.z);
+
+            if (legalMove == piecePosition) {  // If this attack is a valid move
+              // Create an attack token
+              GameObject attackToken = Instantiate(gameManager.attackToken, legalMoves[x, y] + transform.position, new Quaternion());
+              attackToken.GetComponent<AttackToken>().parentPiece = this;  // Set the parent piece to this piece
+              attackToken.GetComponent<AttackToken>().attackedPiece = piece;  // Set the attacked piece to the checking piece
+            }
+          }
+
+        }
+      }
     }
 }

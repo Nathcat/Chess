@@ -65,6 +65,11 @@ public class Pawn : ChessPiece  // Derive from ChessPiece parent class
                 Destroy(moveToken);
             }
 
+            if (gameManager.inCheck[side]) {  // There is a special protocal for moving when the King is in check
+              inCheckMove();
+              return;
+            }
+
             foreach (Vector3 legalMove in legalMoves) {
                 // Check for a piece in the current legal move being checked
                 Collider[] piecesInWay = Physics.OverlapSphere(transform.position + legalMove, 0.5f);
@@ -163,5 +168,27 @@ public class Pawn : ChessPiece  // Derive from ChessPiece parent class
 
         moving = false;  // The piece has finished moving
 
+    }
+
+    void inCheckMove() {  // Special protocol for moves when the king is in check
+      object[] checkingPieces = gameManager.checkingPieces.ToArray();
+
+      // Check if this piece can take any of the pieces putting the king in check
+      for (int x = 0; x < attackSquares.Length; x++) {
+
+          Vector2 legalMove = new Vector2(attackSquares[x].x, attackSquares[x].z) + new Vector2(transform.position.x, transform.position.z);
+
+          foreach (GameObject piece in checkingPieces) {
+            Vector2 piecePosition = new Vector2(piece.transform.position.x, piece.transform.position.z);
+
+            if (legalMove == piecePosition) {  // If this attack is a valid move
+              // Create an attack token
+              GameObject attackToken = Instantiate(gameManager.attackToken, attackSquares[x] + transform.position, new Quaternion());
+              attackToken.GetComponent<AttackToken>().parentPiece = this;  // Set the parent piece to this piece
+              attackToken.GetComponent<AttackToken>().attackedPiece = piece;  // Set the attacked piece to the checking piece
+            }
+          }
+
+      }
     }
 }
