@@ -154,7 +154,7 @@ MonoBehaviour:
   pieceMaterials:
   - {fileID: 2100000, guid: 122c2ab471b334df2a1da2c02bc9c496, type: 2}
   - {fileID: 2100000, guid: b756d544eeba847c0b56c05e661fc57a, type: 2}
-  shouldShowThreats: 1
+  shouldShowThreats: 0
   pieceMoveSpeed: 0.3
   legalMoveToken: {fileID: 3703031443937251155, guid: 209fd83e1f2c74895b4b0d37447948c3,
     type: 3}

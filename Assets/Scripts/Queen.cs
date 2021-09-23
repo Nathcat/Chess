@@ -176,11 +176,9 @@ public class Queen : ChessPiece  // Derive from ChessPiece parent class
         foreach (GameObject moveToken in GameObject.FindGameObjectsWithTag("LegalMoveToken")) {
             Destroy(moveToken);
         }
-
-        gameManager.togglePlayer();  // Move to the next player's turn
     }
 
-    override public object[] getLegalMoves() {  // Return a list of legal moves for this piece
+    override public object[] getLegalMoves(bool friendlyFire) {  // Return a list of legal moves for this piece
       ArrayList legalMoveList = new ArrayList();
 
       for (int legalMoveSet = 0; legalMoveSet < 8; legalMoveSet++) {
@@ -192,9 +190,17 @@ public class Queen : ChessPiece  // Derive from ChessPiece parent class
 
               if (piecesInSquare.Length == 1) {  // Show attack token and break the inner loop if there is a piece in the space
 
-                  if (piecesInSquare[0].transform.gameObject.CompareTag(sideNames[oppositeSide])) {  // If the piece in the space is on the opposite side
+                  // Check that the object in the space is not a move token
+                  if (piecesInSquare[0].transform.gameObject.name.Contains("LegalSpaceToken")) {
+                    // Add this move to the list of legal moves but don't break the loop
+                    legalMoveList.Add(transform.position + legalMoves[legalMoveSet, legalMove]);
+                    continue;
+                  }
+
+                  if (piecesInSquare[0].transform.gameObject.CompareTag(sideNames[oppositeSide]) || friendlyFire) {  // If the piece in the space is on the opposite side
                       legalMoveList.Add(transform.position + legalMoves[legalMoveSet, legalMove]);
                   }
+
                   // Break the inner loop so that there are no more move tokens created in this direction
                   break;
 
@@ -233,10 +239,19 @@ public class Queen : ChessPiece  // Derive from ChessPiece parent class
         }
 
         moving = false;  // The piece has finished moving
+        gameManager.togglePlayer();  // Move to the opposing sides turn
 
     }
 
-    void inCheckMove() {  // Special protocol for moves when the king is in check
+    override public object[] inCheckMove() {  // Special protocol for moves when the king is in check
+
+      ArrayList moves = new ArrayList();
+
+      // Destroy all existing move tokens
+      foreach (GameObject moveToken in GameObject.FindGameObjectsWithTag("LegalMoveToken")) {
+          Destroy(moveToken);
+      }
+
       object[] checkingPieces = gameManager.checkingPieces.ToArray();
 
       // Check if this piece can take any of the pieces putting the king in check
@@ -253,10 +268,48 @@ public class Queen : ChessPiece  // Derive from ChessPiece parent class
               GameObject attackToken = Instantiate(gameManager.attackToken, legalMoves[x, y] + transform.position, new Quaternion());
               attackToken.GetComponent<AttackToken>().parentPiece = this;  // Set the parent piece to this piece
               attackToken.GetComponent<AttackToken>().attackedPiece = piece;  // Set the attacked piece to the checking piece
+
+              moves.Add(attackToken);
             }
           }
 
         }
       }
+
+      // Check if this piece can protect the king from check by moving in the way of the checking piece
+      for (int legalMoveSet = 0; legalMoveSet < 8; legalMoveSet++) {  // legalMoves.Length should equal 4, but apparently it equals 28?!?!?!
+
+          for (int legalMove = 0; legalMove < legalMoves.GetRow(legalMoveSet).Length; legalMove++) {
+
+               // Check for pieces in the current legal move space
+              Collider[] piecesInSquare = Physics.OverlapSphere(transform.position + legalMoves[legalMoveSet, legalMove], 0.5f);
+
+              if (piecesInSquare.Length == 1) {  // Break the inner loop
+
+                  break;  // Break the inner loop, so that there are no more move tokens created in this direction
+
+              }
+
+              if (piecesInSquare.Length == 0 && gameManager.validCheckBlock(transform.position + legalMoves[legalMoveSet, legalMove], side)) {  // Create a move token if this move is a valid check block
+
+                // Check that the position is within the bounds
+                  Vector3 position = transform.position + legalMoves[legalMoveSet, legalMove];
+                  if (position.x > 8.0f || position.x < 0.0f || position.z > 8.0f || position.z < 0.0f) {
+                    continue;
+                  }
+
+                  // Create a move token
+                  MoveToken moveToken = Instantiate(gameManager.legalMoveToken, transform.position + legalMoves[legalMoveSet, legalMove], new Quaternion()).GetComponent<MoveToken>();
+                  moveToken.parentPiece = this;  // Set the parent piece of the move token to this piece
+
+                  moves.Add(moveToken);
+
+              }
+
+          }
+
+      }
+
+      return moves.ToArray();
     }
 }
