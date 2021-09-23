@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
     public bool[] inCheck = {false, false};  // Array to show if each side is in check
     public GameObject checkText;  // UI text to tell the player they are in check
     public GameObject tempCollider;  // Object with a single collider component that is used for checking moves
+    public ArrayList checkingPieces = new ArrayList();  // ArrayList containing all the pieces putting the king in check
 
     void Start() {
         Physics.queriesHitTriggers = true;  // Makes sure that player clicks will hit trigger colliders
@@ -59,12 +60,33 @@ public class GameManager : MonoBehaviour
         }
       }
 
-      inCheck[0] = isThreatened(whiteKing.transform.position, 1);
-      inCheck[1] = isThreatened(blackKing.transform.position, 0);
+      inCheck[0] = (bool) isThreatened(whiteKing.transform.position, 1)[0];
+      inCheck[1] = (bool) isThreatened(blackKing.transform.position, 0)[0];
 
       if (inCheck[turn]) {
+        // This will only evaluate to true when a player is in checkmate,
+        // so, if a player is in checkmate, exit the method.
+        if (checkText.GetComponent<Text>().text != "Check!") {
+          return;
+        }
+
         checkText.GetComponent<Text>().text = "Check!";
         checkText.SetActive(true);
+        if (turn == 0) {
+          object[] threatReport = isThreatened(whiteKing.transform.position, 1);
+          checkingPieces = new ArrayList();
+
+          for (int x = 1; x < threatReport.Length; x++) {
+            checkingPieces.Add(threatReport[x]);
+          }
+        } else if (turn == 1) {
+          object[] threatReport = isThreatened(blackKing.transform.position, 0);
+          checkingPieces = new ArrayList();
+
+          for (int x = 1; x < threatReport.Length; x++) {
+            checkingPieces.Add(threatReport[x]);
+          }
+        }
       } else {
         checkText.SetActive(false);
       }
@@ -76,9 +98,16 @@ public class GameManager : MonoBehaviour
         } else {  // Else, make it white's turn
             turn = 0;
         }
+
+        if (inCheck[turn]) {  // If the current player is in check, check if they are in checkmate
+          checkForCheckmate();
+        }
     }
 
-    public bool isThreatened(Vector3 position, int enemy) {  // Check if a position is threatened by a piece
+    public object[] isThreatened(Vector3 position, int enemy, bool friendlyFire=false) {  // Check if a position is threatened by a piece
+
+        ArrayList threatReport = new ArrayList();
+        threatReport.Add(false);
 
         foreach (GameObject piece in pieces) {  // Iterate for all pieces in the array
 
@@ -91,20 +120,23 @@ public class GameManager : MonoBehaviour
             }
 
             // Get a list of legal attack vectors for this piece
-            object[] legalAttacks = piece.GetComponent<ChessPiece>().getLegalAttacks();
+            object[] legalAttacks = piece.GetComponent<ChessPiece>().getLegalAttacks(friendlyFire);
 
             // Check if any of the legal attack vectors match the given position
             foreach (object attack in legalAttacks) {
                 Vector3 attackVector = (Vector3) attack;
 
                 if ((attackVector.x == position.x) && (attackVector.z == position.z)) {
-                  return true;
+                  if (((bool) threatReport[0]) != true) {
+                    threatReport[0] = true;
+                    threatReport.Add(piece);
+                  }
                 }
             }
 
         }
 
-        return false;
+        return threatReport.ToArray();
 
     }
 
@@ -120,7 +152,7 @@ public class GameManager : MonoBehaviour
                 int oppositeSide;
                 if (turn == 0) { oppositeSide = 1; } else { oppositeSide = 0; }
 
-                if (isThreatened(piece.transform.position, oppositeSide)) {
+                if (((bool) isThreatened(piece.transform.position, oppositeSide)[0])) {
                     // Change the colour of the piece to red
                     piece.GetComponent<MeshRenderer>().material = red;
                 } else {
@@ -133,6 +165,78 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public bool validCheckBlock(Vector3 movePosition, int side) {  // Check if a move to block check is valid
+      // Get the king that is in check
+      GameObject kingPiece = null;
+      foreach (GameObject piece in pieces) {
+        if (piece == null) {
+          continue;
+        }
+
+        if (piece.GetComponent<ChessPiece>().side == side && piece.name.Contains("King")) {
+          kingPiece = piece;
+        }
+      }
+
+      // Create a temporary collider object at movePosition
+      GameObject tempCollider_ = Instantiate(tempCollider, movePosition, new Quaternion());
+
+      int oppositeSide = -1;
+      if (side == 0) {
+        oppositeSide = 1;
+      } else {
+        oppositeSide = 0;
+      }
+
+      // Check if the king is still in check
+      bool isInCheck = (bool) isThreatened(kingPiece.transform.position, oppositeSide)[0];
+
+      // Destroy the temporary collider
+      Destroy(tempCollider_);
+
+      // Return !isInCheck, ie, if the king is still in check, this is an invalid move (return false)
+      return !isInCheck;
+    }
+
+    public void checkForCheckmate() {  // Check if the current player is in checkmate
+      int totalValidMoves = 0;
+
+      foreach (GameObject piece in pieces) {
+        // Destroy all existing move tokens
+        foreach (GameObject moveToken in GameObject.FindGameObjectsWithTag("LegalMoveToken")) {
+            Destroy(moveToken);
+        }
+
+        // Make sure that the current piece exists, if not, skip it
+        if (piece == null) {
+          continue;
+        }
+
+        // Make sure that the current piece is on this player's side, if not, skip it
+        if (piece.GetComponent<ChessPiece>().side != turn) {
+          continue;
+        }
+
+        // Execute the inCheckMove function for this piece
+        object[] moves = piece.GetComponent<ChessPiece>().inCheckMove();
+
+        // Add the number of legal move tokens to the total
+        totalValidMoves += moves.Length;
+      }
+
+      // If there are no valid moves, this player is in checkmate
+      if (totalValidMoves == 0) {
+        string playerColour = "";
+        if (turn == 0) {
+          playerColour = "White";
+        } else {
+          playerColour = "Black";
+        }
+
+        checkText.GetComponent<Text>().text = playerColour + " is in checkmate!";
+        checkText.SetActive(true);
+      }
+    }
 }
 
 public static class ArrayExt  // Array extension class to easily get rows and columns from a 2d array.
