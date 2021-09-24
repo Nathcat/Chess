@@ -32,12 +32,16 @@ public class GameManager : MonoBehaviour
     public GameObject checkText;  // UI text to tell the player they are in check
     public GameObject tempCollider;  // Object with a single collider component that is used for checking moves
     public ArrayList checkingPieces = new ArrayList();  // ArrayList containing all the pieces putting the king in check
+    public GameObject turnIndicator;  // UI image indicating which player's turn it is
+    public Sprite[] turnImages;  // Array of images representing each side (white and black)
 
     void Start() {
         Physics.queriesHitTriggers = true;  // Makes sure that player clicks will hit trigger colliders
     }
 
     void Update() {
+      turnIndicator.GetComponent<Image>().sprite = turnImages[turn];  // Show which player's turn it is via the image
+
       if (shouldShowThreats) {  // If the shouldShowThreats setting is true
         showThreats();  // Show all pieces under threat from the opponent
       }
