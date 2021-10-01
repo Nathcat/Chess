@@ -34,12 +34,16 @@ public class GameManager : MonoBehaviour
     public ArrayList checkingPieces = new ArrayList();  // ArrayList containing all the pieces putting the king in check
     public GameObject turnIndicator;  // UI image indicating which player's turn it is
     public Sprite[] turnImages;  // Array of images representing each side (white and black)
+    public bool playing = true;  // Defines whether a game is currently in process or not
+    private int lastFrameTurn = 0;
+
 
     void Start() {
         Physics.queriesHitTriggers = true;  // Makes sure that player clicks will hit trigger colliders
     }
 
     void Update() {
+
       turnIndicator.GetComponent<Image>().sprite = turnImages[turn];  // Show which player's turn it is via the image
 
       if (shouldShowThreats) {  // If the shouldShowThreats setting is true
@@ -94,6 +98,12 @@ public class GameManager : MonoBehaviour
       } else {
         checkText.SetActive(false);
       }
+
+      if (inCheck[turn] && turn != lastFrameTurn) {  // If the current player is in check, check if they are in checkmate
+        checkForCheckmate();
+      }
+
+      lastFrameTurn = turn;
     }
 
     public void togglePlayer() {  // Move to the next player's turn
@@ -101,10 +111,6 @@ public class GameManager : MonoBehaviour
             turn = 1;
         } else {  // Else, make it white's turn
             turn = 0;
-        }
-
-        if (inCheck[turn]) {  // If the current player is in check, check if they are in checkmate
-          checkForCheckmate();
         }
     }
 
@@ -239,6 +245,7 @@ public class GameManager : MonoBehaviour
 
         checkText.GetComponent<Text>().text = playerColour + " is in checkmate!";
         checkText.SetActive(true);
+        playing = false;
       }
     }
 }

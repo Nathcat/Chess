@@ -210,6 +210,9 @@ public class King : ChessPiece  // Derive from ChessPiece parent class
         }
       }
 
+      foreach(GameObject obj in moves.ToArray()) {
+        Debug.Log(obj.name);
+      }
       return moves.ToArray();
     }
 }
