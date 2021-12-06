@@ -45,6 +45,11 @@ public class GamePiece : MonoBehaviour
     IEnumerator MoveOverTime(Vector3 newPosition) {
       while (transform.position != newPosition) {
         transform.position = transform.position + ((newPosition - transform.position) * gameManager.moveIncrement);
+
+        if ((newPosition - transform.position).magnitude <= 0.01f) {
+          transform.position = newPosition;
+        }
+
         yield return new WaitForSeconds(gameManager.moveWait);
       }
     }
