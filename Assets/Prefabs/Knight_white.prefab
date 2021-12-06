@@ -13,29 +13,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.7, y: 0.7, z: 1.5}
   m_Center: {x: -0.000000028030795, y: 0, z: 0.059500664}
---- !u!114 &5296270038453646263
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 507956545978417154}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5859614c66b14339860decb1c165522, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  legalMoves:
-  - {x: 1, y: 0, z: 2}
-  - {x: 2, y: 0, z: 1}
-  - {x: -1, y: 0, z: 2}
-  - {x: -2, y: 0, z: 1}
-  - {x: 1, y: 0, z: -2}
-  - {x: 2, y: 0, z: -1}
-  - {x: -1, y: 0, z: -2}
-  - {x: -2, y: 0, z: -1}
-  side: 0
-  moving: 0
 --- !u!1001 &850606489334578515
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -117,7 +94,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 122c2ab471b334df2a1da2c02bc9c496, type: 2}
+      objectReference: {fileID: 2100000, guid: 52b80301cc60449388b11507b12bac0e, type: 2}
     - target: {fileID: 919132149155446097, guid: e659583179aa74afda02b2d125ce34e5,
         type: 3}
       propertyPath: m_Name
