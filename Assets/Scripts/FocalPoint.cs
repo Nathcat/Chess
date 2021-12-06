@@ -2,29 +2,38 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
-/*
- * FocalPoint.cs
- *
- * This script controls the rotation of the camera by rotating the FocalPoint object,
- * of which the camera is a child object, so the rotation of the FocalPoint object
- * will affect the rotation of the camera around said FocalPoint object.
- *
- * Author: Nathan "Nathcat" Baines
- */
-
-
 public class FocalPoint : MonoBehaviour
 {
+    public float speed = 20.0f;
+    private GameManager gameManager;
+    public Quaternion[] sideRotations;
+    private int lastSide = 0;
 
-    public float turnSpeed = 20.0f;  // The speed at which the focal point should rotate
+    void Start() {
+      gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+    }
 
-    void Update() {  // Update is called once per frame
+    // Update is called once per frame
+    void Update()
+    {
+        if (gameManager.chess.turnCounter.turn != lastSide) {
+          transform.rotation = sideRotations[gameManager.chess.turnCounter.turn];
+        }
 
-        // Rotate the focal point based on horizontal user input.
-        // Multiply by Time.deltaTime to account for variation in the game's
-        // framerate.
-        transform.Rotate(Vector3.down * turnSpeed * Input.GetAxis("Horizontal") * Time.deltaTime);
+        transform.Rotate(Vector3.up * speed * -Input.GetAxis("Horizontal") * Time.deltaTime);
+        transform.Rotate(Vector3.right * speed * Input.GetAxis("Vertical") * Time.deltaTime);
 
+        float xRotation = transform.eulerAngles.x;
+        if (xRotation < 5f) {
+          xRotation = 5f;
+        }
+
+        if (xRotation > 60f) {
+          xRotation = 60f;
+        }
+
+        transform.eulerAngles = new Vector3(xRotation, transform.eulerAngles.y, 0f);
+
+        lastSide = gameManager.chess.turnCounter.turn;
     }
 }
